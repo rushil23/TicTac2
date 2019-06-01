@@ -9,18 +9,33 @@
 import Foundation
 import MultipeerConnectivity
 
-protocol PlayServiceDelegate { //Implementation in view controller to update UI
-    func connectedDevicesChanged(manager : PlayService, connectedDevices: [String])
-    func playTapReceived(manager : PlayService, songUri: String)
+protocol ConnectionServiceDelegate { //Implementation in view controller to update UI
+    func connectedDevicesChanged(manager : ConnectionService, connectedDevices: [String])
+    func playTapReceived(manager : ConnectionService, message: String)
+    
 }
 
-class PlayService: NSObject {
+protocol GamePlayDelegate {
+    func gamePlayReceived(manager: ConnectionService, message: String)
+    func disconnectReceived(manager: ConnectionService)
+}
+
+enum connectionStatus { //Describes the connection state during the game play
+    case master //The master controls the game logic, who goes first etc
+    case slave //The slave just waits for the master to initialize game parameters
+    case disconnected
+}
+
+class ConnectionService: NSObject {
     
-    var delegate : PlayServiceDelegate?
+    static let sharedManager = ConnectionService()
+    
+    var connectionDelegate : ConnectionServiceDelegate?
+    var gamePlayDelegate: GamePlayDelegate?
     
     // Service type must be a unique string, at most 15 characters long
     // and can contain only ASCII lowercase letters, numbers and hyphens.
-    private let PlayServiceType = "tictac2-ios"
+    private let PlayServiceType = "tictac2-ios" //Future Improvement: Let users enter room ID to allow private connections
     
     private let myPeerId = MCPeerID(displayName: UIDevice.current.name)
     private let serviceAdvertiser : MCNearbyServiceAdvertiser
@@ -59,12 +74,12 @@ class PlayService: NSObject {
         goOffline()
     }
     
-    func send(songUri : String) {
-        NSLog("%@", "sentSong: \(songUri) to \(session.connectedPeers.count) peers")
+    func send(data: String) {
+        NSLog("%@", "sentSong: \(data) to \(session.connectedPeers.count) peers")
         
         if session.connectedPeers.count > 0 {
             do {
-                try self.session.send(songUri.data(using: .utf8)!, toPeers: session.connectedPeers, with: .reliable)
+                try self.session.send(data.data(using: .utf8)!, toPeers: session.connectedPeers, with: .reliable)
             }
             catch let error {
                 NSLog("%@", "Error for sending: \(error)")
@@ -74,7 +89,7 @@ class PlayService: NSObject {
     }
 }
 
-extension PlayService : MCNearbyServiceAdvertiserDelegate {
+extension ConnectionService : MCNearbyServiceAdvertiserDelegate {
     
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {
         NSLog("%@", "didNotStartAdvertisingPeer: \(error)")
@@ -87,7 +102,7 @@ extension PlayService : MCNearbyServiceAdvertiserDelegate {
     
 }
 
-extension PlayService : MCNearbyServiceBrowserDelegate {
+extension ConnectionService : MCNearbyServiceBrowserDelegate {
     
     func browser(_ browser: MCNearbyServiceBrowser, didNotStartBrowsingForPeers error: Error) {
         NSLog("%@", "didNotStartBrowsingForPeers: \(error)")
@@ -98,25 +113,26 @@ extension PlayService : MCNearbyServiceBrowserDelegate {
         NSLog("%@", "invitePeer: \(peerID)")
         browser.invitePeer(peerID, to: self.session, withContext: nil, timeout: 10)
         
-        self.delegate?.connectedDevicesChanged(manager: self, connectedDevices:
+        self.connectionDelegate?.connectedDevicesChanged(manager: self, connectedDevices:
             session.connectedPeers.map{$0.displayName})
     }
     
     func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
         NSLog("%@", "lostPeer: \(peerID)")
         
-        self.delegate?.connectedDevicesChanged(manager: self, connectedDevices:
+        self.gamePlayDelegate?.disconnectReceived(manager: self)
+        self.connectionDelegate?.connectedDevicesChanged(manager: self, connectedDevices:
             session.connectedPeers.map{$0.displayName})
     }
     
 }
 
-extension PlayService : MCSessionDelegate {
+extension ConnectionService : MCSessionDelegate {
     
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         NSLog("%@", "peer \(peerID) didChangeState: \(state.rawValue)")
         
-        self.delegate?.connectedDevicesChanged(manager: self, connectedDevices:
+        self.connectionDelegate?.connectedDevicesChanged(manager: self, connectedDevices:
             session.connectedPeers.map{$0.displayName})
         
         
@@ -138,8 +154,9 @@ extension PlayService : MCSessionDelegate {
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         NSLog("%@", "didReceiveData: \(data)")
         let str = String(data: data, encoding: .utf8)!
-        print("Song receivedd = \(str)")
-        self.delegate?.playTapReceived(manager: self, songUri: str)
+        print("Message Received = \(str)")
+        self.connectionDelegate?.playTapReceived(manager: self, message: str)
+        self.gamePlayDelegate?.gamePlayReceived(manager: self, message: str)
     }
     
     func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {

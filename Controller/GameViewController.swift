@@ -10,17 +10,75 @@ import UIKit
 
 class GameViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
-    @IBOutlet weak var gridView: UICollectionView!
     
-    var game = GameManager()
+    @IBOutlet weak var currentPlayerImage: UIImageView!
+    @IBOutlet weak var gridView: UICollectionView!
+    @IBOutlet weak var yourTurnLabel: UILabel!
+    @IBOutlet weak var currentPlayerStack: UIStackView!
+    
+    let connectionService = ConnectionService.sharedManager
+    
+    var game = GameManager.sharedManager
+    var yourTurn: Bool? {
+        didSet {
+            DispatchQueue.main.async {
+                print("DidSet: yourTurn to \(self.yourTurn)")
+                guard let yourTurn = self.yourTurn else {
+                    self.yourTurnLabel.isHidden = true
+                    return
+                }
+                self.yourTurnLabel.isHidden = false
+                self.yourTurnLabel.text = "\(yourTurn ? "Your":"Their") Turn"
+            }
+        }
+    }
+    var playerX: Bool? {
+        
+        didSet {
+            DispatchQueue.main.async {
+                print("DidSet: playerX to \(self.playerX)")
+                guard let playerX = self.playerX else {
+                    self.currentPlayerStack.isHidden = true
+                    return
+                }
+                self.currentPlayerStack.isHidden = false
+                self.currentPlayerImage.image = playerX ? self.X : self.O
+            }
+            
+        }
+    }
+    
+    let X = UIImage(named: "crossred.png")
+    let O = UIImage(named: "redcircle.png")
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        game.initializeGame()
-        
+        connectionService.gamePlayDelegate = self
+        game.initializeGrid()
         //Setup Colors
         self.view.backgroundColor = ColorScheme.yellow
+        
+        let master = game.master ?? false
+        if (!master) { //If you are the slave, notify the master
+            connectionService.send(data: "master")
+        }
+    }
+    
+    func initialize() {
+        game.initializeGame()
+        DispatchQueue.main.async {
+            self.playerX = self.game.playerX
+            self.yourTurn = self.game.yourTurn
+            self.gridView.reloadData()
+        }
+        
+    }
+    
+    func goToMainScreen() {
+        let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        let connectionVC = storyBoard.instantiateViewController(withIdentifier: "ConnectionView") as! ConnectionViewController
+        self.present(connectionVC, animated: true, completion: nil)
     }
     
     //MARK: Collection View Functions
@@ -69,21 +127,24 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard (game.getStatusAt(indexPath.item) == .notSelected) else { return }
+        didSelectAt(indexPath.item)
+    }
+    
+    func didSelectAt(_ index: Int) {
+        guard (game.getStatusAt(index) == .notSelected) else { return }
         
         game.selectedCount += 1
         
         if (game.selectedCount % 2 == 0) { //Player One
-            print("Player 1 selected \(indexPath.item)")
-            game.updateStatusAtIndex(status: .playerOne, index: indexPath.item)
+            print("Player 1 selected \(index)")
+            game.updateStatusAtIndex(status: .playerOne, index: index)
         } else { // Player Two
-            print("Player 2 selected \(indexPath.item)")
-            game.updateStatusAtIndex(status: .playerTwo, index: indexPath.item)
+            print("Player 2 selected \(index)")
+            game.updateStatusAtIndex(status: .playerTwo, index: index)
         }
         
         gridView.reloadData()
-        checkWinCase(indexPath.item)
-        
+        checkWinCase(index)
     }
     
     func checkWinCase(_ index: Int) {
@@ -115,8 +176,25 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
     }
     
     func endGame() {
-        game.initializeGame()
-        gridView.reloadData()
+        initialize()
     }
     
+}
+
+extension GameViewController : GamePlayDelegate {
+    func gamePlayReceived(manager: ConnectionService, message: String) {
+        print("Game Play Received = \(message)")
+        if (message == "X") {
+            game.playerX = true
+        } else if (message == "O"){
+            game.playerX = false
+        }
+        game.yourTurn = game.playerX
+        initialize()
+    }
+    
+    func disconnectReceived(manager: ConnectionService) {
+        //Do nothing for now - Handle later
+    }
+
 }
