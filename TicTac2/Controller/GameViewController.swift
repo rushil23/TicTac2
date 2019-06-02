@@ -70,9 +70,7 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
         DispatchQueue.main.async {
             self.playerX = self.game.playerX
             self.yourTurn = self.game.yourTurn
-            self.gridView.performBatchUpdates({
-                self.gridView.reloadSections(IndexSet(integer: 0))
-            }, completion: nil)
+            self.gridView.reloadData()
         }
         
     }
