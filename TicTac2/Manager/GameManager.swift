@@ -18,20 +18,22 @@ class GameManager {
     
     //Singleton Declaration
     static let sharedManager = GameManager()
-    
     let connectionService = ConnectionService.sharedManager
     
     let size = 3 //Hardcoded - TicTacToe is usually 3 x 3?
-    var selectedCount = 0
-    var master: Bool? = nil
-    var playerX: Bool = false
-    var yourTurn: Bool = false
+    var selectedCount = 0 //Counts the number of grids selected
+    
+    var master: Bool? = nil //Master/Slave - to handle phone-to-phone communication
+    var playerX: Bool = false //Are you X or O?
+    var yourTurn: Bool = false //Is it your turn
     
     var grid: [[Grid]] =  []
     
+    //MARK: Game Initializations
     func initializeGame() {
         print("GAME INTITIALIZED!")
         initializeGrid()
+        
         //Master decides who becomes X and who becomes O
         if (master ?? false) { // Initialize game parameters
             print("You are the master.")
@@ -40,7 +42,7 @@ class GameManager {
             let message = playerX ? "O" : "X"
             connectionService.send(data: message)
         } else { //Slaves dont do anything here
-            print("You are the slave")
+            print("You are the slave.")
         }
     }
     
@@ -54,11 +56,12 @@ class GameManager {
         }
     }
     
+    //MARK: Win Condition Check
     func checkWinStatus(_ status: gridStatus) -> winStatus {
         let hasXWon: Bool = (status == .playerX)
         return (hasXWon == playerX) ? .won : .lost
     }
-    
+
     func hasUserWon(_ index: Int) -> winStatus {
         let row = getRowCol(index: index)[0]
         let col = getRowCol(index: index)[1]
@@ -103,6 +106,7 @@ class GameManager {
         return .notYet
     }
     
+    //MARK: Getter and Update functions
     func updateStatusAtIndex(status: gridStatus, index: Int) {
         let row = getRowCol(index: index)[0]
         let col = getRowCol(index: index)[1]
@@ -115,6 +119,7 @@ class GameManager {
         return grid[row][col].status
     }
     
+    //MARK: Helper functions
     func getRowCol(index: Int)->[Int] {
         let row: Int = (index/size)
         let col: Int = index % size

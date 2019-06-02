@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
-    <device id="retina5_5" orientation="portrait">
+    <device id="retina6_1" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -15,11 +15,11 @@
             <objects>
                 <viewController storyboardIdentifier="ConnectionView" useStoryboardIdentifierAsRestorationIdentifier="YES" id="BYZ-38-t0r" customClass="ConnectionViewController" customModule="TicTac2" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="lcq-Vt-hjY">
-                                <rect key="frame" x="182.66666666666666" y="232.66666666666666" width="51" height="30.999999999999972"/>
+                                <rect key="frame" x="182.5" y="312.5" width="51" height="31"/>
                                 <color key="onTintColor" red="0.81884258990000003" green="0.24058058860000001" blue="0.21955826880000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <color key="thumbTintColor" red="0.60536755181347157" green="0.051089155627337623" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <connections>
@@ -27,7 +27,7 @@
                                 </connections>
                             </switch>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Connection(s): 0 " textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tWL-fp-sFC">
-                                <rect key="frame" x="0.0" y="50" width="414" height="27.666666666666671"/>
+                                <rect key="frame" x="0.0" y="74" width="414" height="27.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="23"/>
                                 <color key="textColor" red="0.81884258985519409" green="0.24058058857917786" blue="0.21955826878547668" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <nil key="highlightedColor"/>
@@ -40,7 +40,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Pp5-Cj-tBz" userLabel="playButton">
-                                <rect key="frame" x="117" y="278" width="180" height="180"/>
+                                <rect key="frame" x="117" y="358" width="180" height="180"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="180" id="HWe-lN-EaK"/>
                                     <constraint firstAttribute="height" constant="180" id="fdm-N2-gim"/>
@@ -79,11 +79,11 @@
             <objects>
                 <viewController storyboardIdentifier="GameView" useStoryboardIdentifierAsRestorationIdentifier="YES" id="YjT-6k-feD" customClass="GameViewController" customModule="TicTac2" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="FoH-oM-eBR">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="RhY-aR-sXF">
-                                <rect key="frame" x="0.0" y="201" width="414" height="414"/>
+                                <rect key="frame" x="0.0" y="281" width="414" height="414"/>
                                 <color key="backgroundColor" red="0.81884258985519409" green="0.24058058857917786" blue="0.21955826878547668" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="RhY-aR-sXF" secondAttribute="height" multiplier="1:1" id="gcK-UG-gFO"/>
@@ -124,7 +124,7 @@
                                 </connections>
                             </collectionView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="diI-NV-eko">
-                                <rect key="frame" x="20" y="40" width="45" height="45"/>
+                                <rect key="frame" x="20" y="64" width="45" height="45"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="45" id="HZb-1V-Sc3"/>
                                     <constraint firstAttribute="height" constant="45" id="g57-bg-kJg"/>
@@ -137,16 +137,16 @@
                                 </connections>
                             </button>
                             <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" alignment="center" spacing="25" translatesAutoresizingMaskIntoConstraints="NO" id="atE-6I-Aek">
-                                <rect key="frame" x="90.000000000000014" y="81" width="234.33333333333337" height="90"/>
+                                <rect key="frame" x="90" y="161" width="234.5" height="90"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Player" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="u38-o3-uqC" userLabel="Player">
-                                        <rect key="frame" x="0.0" y="21.666666666666668" width="119.33333333333333" height="46.666666666666657"/>
+                                        <rect key="frame" x="0.0" y="21.5" width="119.5" height="47"/>
                                         <fontDescription key="fontDescription" type="system" weight="heavy" pointSize="39"/>
                                         <color key="textColor" red="0.81884258990000003" green="0.24058058860000001" blue="0.21955826880000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Fdd-JI-Bdy">
-                                        <rect key="frame" x="144.33333333333334" y="0.0" width="90" height="90"/>
+                                        <rect key="frame" x="144.5" y="0.0" width="90" height="90"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="90" id="Ku4-UZ-j76"/>
                                             <constraint firstAttribute="width" constant="90" id="XKI-xo-MW6"/>
@@ -155,7 +155,7 @@
                                 </subviews>
                             </stackView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Your Turn" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lcF-WZ-irX">
-                                <rect key="frame" x="8" y="623" width="398" height="48"/>
+                                <rect key="frame" x="8" y="703" width="398" height="48"/>
                                 <fontDescription key="fontDescription" type="system" weight="black" pointSize="40"/>
                                 <color key="textColor" red="0.81884258990000003" green="0.24058058860000001" blue="0.21955826880000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <nil key="highlightedColor"/>

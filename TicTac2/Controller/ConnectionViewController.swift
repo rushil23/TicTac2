@@ -10,19 +10,22 @@ import UIKit
 
 class ConnectionViewController: UIViewController {
     
+    //MARK: Variable Declaration
+    //ConnectionService manages the phone-to-phone communication
     let connectionService = ConnectionService.sharedManager
+    //Game Manager handles the game logic
+    let game = GameManager.sharedManager
     
+    // UI Outlets
     @IBOutlet weak var connectionSwitch: UISwitch!
     @IBOutlet weak var connectionsLabel: UILabel!
     @IBOutlet weak var deviceName: UILabel!
     @IBOutlet weak var playButton: UIButton!
     
-    let game = GameManager.sharedManager
-    
+    //Go Live switch toggle
     @IBAction func goLiveSwitchToggled(_ sender: UISwitch) {
-        
         let isOn =  connectionSwitch.isOn
-        playButton.isEnabled = isOn
+        playButton.isEnabled = isOn //Enable/Disable playButton accordingly
         if (isOn) {
             connectionService.goLive()
         } else {
@@ -31,27 +34,28 @@ class ConnectionViewController: UIViewController {
         
     }
     
+    //Button to start game
     @IBAction func playTapped(_ sender: UIButton) {
         let numConnections = connectionService.session.connectedPeers.count
-        
-        if (numConnections > 1) {
+        if (numConnections > 1) { //Multiple connections is currently not handled
             let alert = UIAlertController(title: "Error!", message: "Your device is connected to multiple devices. Reduce connections to exactly 1, and try again.", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Ok :o", style: .default, handler: nil))
             self.present(alert, animated: true, completion: nil)
-        } else if (numConnections == 0){
+        } else if (numConnections == 0){ //No devices found to connect with
             let alert = UIAlertController(title: "Error!", message: "No connected devices found. Turn WiFi/Bluetooth on to connect to other devices.", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Okay :(", style: .default, handler: nil))
             self.present(alert, animated: true, completion: nil)
         } else {
+            //Start game and send messages accordingly
             print("Play tapped")
-            let message = "slave"
-            game.master = true
+            game.master = true //The master is the one who clicks play first.
+            let message = "slave" //The other phone is now the slave
             connectionService.send(data: message)
             goToGameScreen()
         }
     }
     
-    
+    //Segue into the game screen
     func goToGameScreen(){
         let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         let gameVC = storyBoard.instantiateViewController(withIdentifier: "GameView") as! GameViewController
@@ -60,9 +64,10 @@ class ConnectionViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        
         connectionService.connectionDelegate = self
         
+        //Initially disable connections and play button
         connectionSwitch.isOn = false
         playButton.isEnabled = false
         connectionService.goOffline()
@@ -73,9 +78,9 @@ class ConnectionViewController: UIViewController {
         
         //Hide connected device list : Remove this for testing purposes
         deviceName.isHidden = true
-        
     }
     
+    // Function to update connections
     func refreshData(_ connectedDevices: [String]) {
         DispatchQueue.main.async {
             self.deviceName.text = "\(connectedDevices)"
@@ -91,13 +96,13 @@ extension ConnectionViewController : ConnectionServiceDelegate {
     func playTapReceived(manager: ConnectionService, message: String) {
         DispatchQueue.main.async {
             print("Received Message: \(message)")
-            self.game.master = false
-            self.goToGameScreen()
+            self.game.master = false //You are the slave as you got the "slave" message
+            self.goToGameScreen() //Go to game screen
         }
     }
     
     func connectedDevicesChanged(manager: ConnectionService, connectedDevices: [String]) {
-        refreshData(connectedDevices)
+        refreshData(connectedDevices) //Update connections UI
     }
     
 }

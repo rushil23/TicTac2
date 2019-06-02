@@ -10,19 +10,28 @@ import UIKit
 
 class GameViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
-    
+    //MARK: Variable Declaration
+    //UI Outlets
     @IBOutlet weak var currentPlayerImage: UIImageView!
     @IBOutlet weak var gridView: UICollectionView!
     @IBOutlet weak var yourTurnLabel: UILabel!
     @IBOutlet weak var currentPlayerStack: UIStackView!
     
+    //Connection Service manages the phone-to-phone communication
     let connectionService = ConnectionService.sharedManager
-    
-    let animationDuration = 0.2
+    //Game Manager manages the game logic
     var game = GameManager.sharedManager
-    var yourTurn: Bool? {
+    
+    //UI Constants
+    let animationDuration = 0.2
+    let X = UIImage(named: "crossred.png")
+    let O = UIImage(named: "redcircle.png")
+    
+    //MARK: Did Sets
+    //True when it is your turn to play
+    var yourTurn: Bool? { //Updates the label below the grid
         didSet {
-            print("DidSet: yourTurn to \(yourTurn)")
+            print("Your Turn = \(String(describing: yourTurn))")
             guard let yourTurn = yourTurn else {
                 yourTurnLabel.isHidden = true
                 return
@@ -34,10 +43,11 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
             
         }
     }
-    var playerX: Bool? {
-        
+    
+    //True if you are player X for the game
+    var playerX: Bool? { //Updates the image on top of the grid
         didSet {
-            print("DidSet: playerX to \(playerX)")
+            print("Is Player X? = \(String(describing: playerX))")
             guard let playerX = playerX else {
                 currentPlayerStack.isHidden = true
                 return
@@ -48,23 +58,24 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
         }
     }
     
-    let X = UIImage(named: "crossred.png")
-    let O = UIImage(named: "redcircle.png")
-    
+    //MARK: Initializations
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        connectionService.gamePlayDelegate = self
-        game.initializeGrid()
+
         //Setup Colors
         self.view.backgroundColor = ColorScheme.yellow
         
+        game.initializeGrid()
+        
+        //Slave notifies master once its done setting up
+        connectionService.gamePlayDelegate = self
         let master = game.master ?? false
         if (!master) { //If you are the slave, notify the master
             connectionService.send(data: "master")
         }
     }
     
+    //Initialize game parameters and decide who is X and O
     func initialize() {
         game.initializeGame()
         DispatchQueue.main.async {
@@ -75,7 +86,8 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
         
     }
     
-    func goToMainScreen() {
+    //Segue to connection screen
+    func goToConnectionScreen() {
         let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         let connectionVC = storyBoard.instantiateViewController(withIdentifier: "ConnectionView") as! ConnectionViewController
         self.present(connectionVC, animated: true, completion: nil)
@@ -89,7 +101,8 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
     // Adjust number of rows & columns - by adjusting size of cells
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
-        let minSpacing = CGFloat(2 * (game.size - 1))
+        let space = 2 //Here 2 is the minimum spacing between cells
+        let minSpacing = CGFloat(space * (game.size - 1))
         let size = CGFloat(game.size)
         
         return CGSize(width: (collectionView.bounds.size.width - minSpacing)/size,
@@ -107,42 +120,43 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
         grid.backgroundColor = ColorScheme.yellow
 
         switch(status){
-            case .notSelected:
+            case .notSelected: //Hide image view initially
                 grid.image.isHidden = true
                 break
             case .playerX:
-                grid.image.isHidden = false
+                grid.image.isHidden = false //Show X
                 grid.image.image = UIImage(named: "crossred.png")
                 break
             case .playerO:
-                grid.image.isHidden = false
+                grid.image.isHidden = false //Show O
                 grid.image.image = UIImage(named: "redcircle.png")
                 break
         }
-        
-        //grid.backgroundColor = (index % 2 == 0) ? .green : .blue
         
         return grid
         
     }
     
+    // Lets users play X / O if it's their turn
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let yourTurn = yourTurn else {
             print("DeveloperWarning: yourTurn was found to be nil")
             return
         }
-        if (yourTurn) {
+        if (yourTurn) { //Only let users play if its their turn
             didSelectAt(indexPath.item)
         }
     }
     
     func didSelectAt(_ index: Int) {
+        //To prevent changing an already selected grid
         guard (game.getStatusAt(index) == .notSelected) else { return }
         
-        self.yourTurn = false
-        connectionService.send(data: "\(index)")
-        
+        self.yourTurn = false //Not your turn anymore
         game.selectedCount += 1
+        
+        //Sending this message will trigger the other person's turn to be True
+        connectionService.send(data: "\(index)")
         
         let isX = game.playerX
         game.updateStatusAtIndex(status: (isX ? .playerX : .playerO), index: index)
@@ -153,6 +167,7 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
         checkWinCase(index)
     }
     
+    //Function to update changes from the other user
     func theySelectedAt(_ index: Int) {
         game.selectedCount += 1
         let isX = game.playerX
@@ -163,11 +178,14 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
         checkWinCase(index)
     }
     
+    //Check if game has ended by the last tap at index
     func checkWinCase(_ index: Int) {
         let winStatus = game.hasUserWon(index)
+        
         var title: String
         var message: String
         var action: String
+        
         if (winStatus == .notYet) {
             if (game.selectedCount != 9) {
                 return
@@ -181,7 +199,6 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
             message = won ? "You're good at this. Congrats!" : "You'll get better, don't worry :)"
             action = won ? "Great!" : "Ok :/"
         }
-        
     
         //Show win alert
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
@@ -198,10 +215,12 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
     
 }
 
+// Handles communication from other phone
 extension GameViewController : GamePlayDelegate {
     func gamePlayReceived(manager: ConnectionService, message: String) {
         print("Game Play Received = \(message)")
         
+        // The "master" message is a sign that the slave has finished loading
         if (message == "master") { //Initialize game and set the image
             game.master = true
             game.initializeGame()
@@ -209,12 +228,15 @@ extension GameViewController : GamePlayDelegate {
                 self.yourTurn = self.game.yourTurn
                 self.playerX = self.game.playerX
             }
+        // Handles game initialization and sets parameters
+        // This is a message sent by the master to the slave
         } else if (message == "X" || message == "O") {
             game.playerX = (message == "X")
             game.yourTurn = game.playerX
             DispatchQueue.main.async {
                 self.initialize()
             }
+        // Handles index messages, to indicate which index the last turn was played at.
         } else {
             guard let index = Int(message) else { return }
             game.yourTurn = true
@@ -226,11 +248,12 @@ extension GameViewController : GamePlayDelegate {
         
     }
     
+    //Disconnect occurs when the connection loses a peer
     func disconnectReceived(manager: ConnectionService) {
         print("Other device has disconnected. Connections remaining: \(connectionService.session.connectedPeers.count)")
         let alert = UIAlertController(title: "Oops!", message: "Looks like your friend has disconnected. Please try connecting again.", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Ouch :/", style: .default, handler: { action in
-            self.goToMainScreen()
+            self.goToConnectionScreen()
         }))
         self.present(alert, animated: true, completion: nil)
     }
