@@ -71,6 +71,9 @@ class ConnectionViewController: UIViewController {
         self.view.backgroundColor = ColorScheme.yellow
         self.connectionsLabel.textColor = ColorScheme.red
         
+        //Hide connected device list : Remove this for testing purposes
+        deviceName.isHidden = true
+        
     }
     
     func refreshData(_ connectedDevices: [String]) {

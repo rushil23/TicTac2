@@ -18,6 +18,7 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
     
     let connectionService = ConnectionService.sharedManager
     
+    let animationDuration = 0.2
     var game = GameManager.sharedManager
     var yourTurn: Bool? {
         didSet {
@@ -27,7 +28,10 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
                 return
             }
             yourTurnLabel.isHidden = false
-            yourTurnLabel.text = "\(yourTurn ? "Your":"Their") Turn"
+            
+            self.yourTurnLabel.text = "\(yourTurn ? "Your":"Their") Turn"
+            self.yourTurnLabel.textColor = yourTurn ? ColorScheme.green : ColorScheme.red
+            
         }
     }
     var playerX: Bool? {
@@ -66,7 +70,9 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
         DispatchQueue.main.async {
             self.playerX = self.game.playerX
             self.yourTurn = self.game.yourTurn
-            self.gridView.reloadData()
+            self.gridView.performBatchUpdates({
+                self.gridView.reloadSections(IndexSet(integer: 0))
+            }, completion: nil)
         }
         
     }
@@ -143,7 +149,9 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
         let isX = game.playerX
         game.updateStatusAtIndex(status: (isX ? .playerX : .playerO), index: index)
     
-        gridView.reloadData()
+        UIView.animate(withDuration: animationDuration, animations: {
+            self.gridView.reloadItems(at: [IndexPath(item: index, section: 0)])
+        })
         checkWinCase(index)
     }
     
@@ -151,7 +159,9 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
         game.selectedCount += 1
         let isX = game.playerX
         game.updateStatusAtIndex(status: isX ? .playerO : .playerX, index: index)
-        gridView.reloadData()
+        UIView.animate(withDuration: animationDuration, animations: {
+            self.gridView.reloadItems(at: [IndexPath(item: index, section: 0)])
+        })
         checkWinCase(index)
     }
     

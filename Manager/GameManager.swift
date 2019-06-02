@@ -56,7 +56,7 @@ class GameManager {
     
     func checkWinStatus(_ status: gridStatus) -> winStatus {
         let hasXWon: Bool = (status == .playerX)
-        return (hasXWon && playerX) ? .won : .lost
+        return (hasXWon == playerX) ? .won : .lost
     }
     
     func hasUserWon(_ index: Int) -> winStatus {
