@@ -30,15 +30,16 @@ class GameManager {
     var grid: [[Grid]] =  []
     
     func initializeGame() {
-        print("GAME INTITIALIZED! ")
+        print("GAME INTITIALIZED!")
         initializeGrid()
-        if (master ?? false) {
+        //Master decides who becomes X and who becomes O
+        if (master ?? false) { // Initialize game parameters
             print("You are the master.")
             playerX = Bool.random()
             yourTurn = playerX
             let message = playerX ? "O" : "X"
             connectionService.send(data: message)
-        } else {
+        } else { //Slaves dont do anything here
             print("You are the slave")
         }
     }
@@ -46,12 +47,16 @@ class GameManager {
     func initializeGrid() {
         selectedCount = 0
         grid = Array(repeating: Array(repeating: Grid(), count: size), count: size)
-        
         for i in 0..<size {
             for j in 0..<size {
                 grid[i][j] = Grid(.notSelected)
             }
         }
+    }
+    
+    func checkWinStatus(_ status: gridStatus) -> winStatus {
+        let hasXWon: Bool = (status == .playerX)
+        return (hasXWon && playerX) ? .won : .lost
     }
     
     func hasUserWon(_ index: Int) -> winStatus {
@@ -63,13 +68,11 @@ class GameManager {
         
         //Check row:
         if (grid[row][0].status == grid[row][1].status && grid[row][1].status == grid[row][2].status) {
-            let playerOneHasWon: Bool = (status == .playerOne)
-            return (playerOneHasWon == master) ? .won : .lost
+            return checkWinStatus(status)
         }
         //Check column:
         if (grid[0][col].status == grid[1][col].status && grid[1][col].status == grid[2][col].status) {
-            let playerOneHasWon: Bool = (status == .playerOne)
-            return (playerOneHasWon == master) ? .won : .lost
+            return checkWinStatus(status)
         }
         var mismatch = false
         //Check Main Diagonal:
@@ -81,8 +84,7 @@ class GameManager {
                 }
             }
             if (!mismatch) {
-                let playerOneHasWon: Bool = (status == .playerOne)
-                return (playerOneHasWon == master) ? .won : .lost
+                return checkWinStatus(status)
             }
         }
         //Check Off Diagonal:
@@ -95,8 +97,7 @@ class GameManager {
                 }
             }
             if (!mismatch) {
-                let playerOneHasWon: Bool = (status == .playerOne)
-                return (playerOneHasWon == master) ? .won : .lost
+                return checkWinStatus(status)
             }
         }
         return .notYet

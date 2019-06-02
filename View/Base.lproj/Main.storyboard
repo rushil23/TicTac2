@@ -26,7 +26,7 @@
                                     <action selector="goLiveSwitchToggled:" destination="BYZ-38-t0r" eventType="valueChanged" id="aP1-qa-Lja"/>
                                 </connections>
                             </switch>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Connected To: 0 Devices" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tWL-fp-sFC">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Connection(s): 0 " textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tWL-fp-sFC">
                                 <rect key="frame" x="20" y="74" width="374" height="89"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="23"/>
                                 <color key="textColor" red="0.81884258985519409" green="0.24058058857917786" blue="0.21955826878547668" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
@@ -39,7 +39,7 @@
                                 <color key="textColor" red="0.81884258985519409" green="0.24058058857917786" blue="0.21955826878547668" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Pp5-Cj-tBz">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Pp5-Cj-tBz" userLabel="playButton">
                                 <rect key="frame" x="117" y="358" width="180" height="180"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="180" id="HWe-lN-EaK"/>
@@ -65,8 +65,10 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
+                        <outlet property="connectionSwitch" destination="lcq-Vt-hjY" id="Bbk-JI-g1h"/>
                         <outlet property="connectionsLabel" destination="tWL-fp-sFC" id="xms-MK-uLF"/>
                         <outlet property="deviceName" destination="Wye-ec-Nog" id="pxB-xc-10h"/>
+                        <outlet property="playButton" destination="Pp5-Cj-tBz" id="4qC-2w-ClH"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

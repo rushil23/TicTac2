@@ -21,29 +21,25 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
     var game = GameManager.sharedManager
     var yourTurn: Bool? {
         didSet {
-            DispatchQueue.main.async {
-                print("DidSet: yourTurn to \(self.yourTurn)")
-                guard let yourTurn = self.yourTurn else {
-                    self.yourTurnLabel.isHidden = true
-                    return
-                }
-                self.yourTurnLabel.isHidden = false
-                self.yourTurnLabel.text = "\(yourTurn ? "Your":"Their") Turn"
+            print("DidSet: yourTurn to \(yourTurn)")
+            guard let yourTurn = yourTurn else {
+                yourTurnLabel.isHidden = true
+                return
             }
+            yourTurnLabel.isHidden = false
+            yourTurnLabel.text = "\(yourTurn ? "Your":"Their") Turn"
         }
     }
     var playerX: Bool? {
         
         didSet {
-            DispatchQueue.main.async {
-                print("DidSet: playerX to \(self.playerX)")
-                guard let playerX = self.playerX else {
-                    self.currentPlayerStack.isHidden = true
-                    return
-                }
-                self.currentPlayerStack.isHidden = false
-                self.currentPlayerImage.image = playerX ? self.X : self.O
+            print("DidSet: playerX to \(playerX)")
+            guard let playerX = playerX else {
+                currentPlayerStack.isHidden = true
+                return
             }
+            currentPlayerStack.isHidden = false
+            currentPlayerImage.image = playerX ? X : O
             
         }
     }
@@ -110,11 +106,11 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
             case .notSelected:
                 grid.image.isHidden = true
                 break
-            case .playerOne:
+            case .playerX:
                 grid.image.isHidden = false
                 grid.image.image = UIImage(named: "crossred.png")
                 break
-            case .playerTwo:
+            case .playerO:
                 grid.image.isHidden = false
                 grid.image.image = UIImage(named: "redcircle.png")
                 break
@@ -127,22 +123,34 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        didSelectAt(indexPath.item)
+        guard let yourTurn = yourTurn else {
+            print("DeveloperWarning: yourTurn was found to be nil")
+            return
+        }
+        if (yourTurn) {
+            didSelectAt(indexPath.item)
+        }
     }
     
     func didSelectAt(_ index: Int) {
         guard (game.getStatusAt(index) == .notSelected) else { return }
         
+        self.yourTurn = false
+        connectionService.send(data: "\(index)")
+        
         game.selectedCount += 1
         
-        if (game.selectedCount % 2 == 0) { //Player One
-            print("Player 1 selected \(index)")
-            game.updateStatusAtIndex(status: .playerOne, index: index)
-        } else { // Player Two
-            print("Player 2 selected \(index)")
-            game.updateStatusAtIndex(status: .playerTwo, index: index)
-        }
-        
+        let isX = game.playerX
+        game.updateStatusAtIndex(status: (isX ? .playerX : .playerO), index: index)
+    
+        gridView.reloadData()
+        checkWinCase(index)
+    }
+    
+    func theySelectedAt(_ index: Int) {
+        game.selectedCount += 1
+        let isX = game.playerX
+        game.updateStatusAtIndex(status: isX ? .playerO : .playerX, index: index)
         gridView.reloadData()
         checkWinCase(index)
     }
@@ -179,22 +187,44 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
         initialize()
     }
     
+    
 }
 
 extension GameViewController : GamePlayDelegate {
     func gamePlayReceived(manager: ConnectionService, message: String) {
         print("Game Play Received = \(message)")
-        if (message == "X") {
-            game.playerX = true
-        } else if (message == "O"){
-            game.playerX = false
+        
+        if (message == "master") { //Initialize game and set the image
+            game.master = true
+            game.initializeGame()
+            DispatchQueue.main.async {
+                self.yourTurn = self.game.yourTurn
+                self.playerX = self.game.playerX
+            }
+        } else if (message == "X" || message == "O") {
+            game.playerX = (message == "X")
+            game.yourTurn = game.playerX
+            DispatchQueue.main.async {
+                self.initialize()
+            }
+        } else {
+            guard let index = Int(message) else { return }
+            game.yourTurn = true
+            DispatchQueue.main.async {
+                self.yourTurn = true
+                self.theySelectedAt(index)
+            }
         }
-        game.yourTurn = game.playerX
-        initialize()
+        
     }
     
     func disconnectReceived(manager: ConnectionService) {
-        //Do nothing for now - Handle later
+        print("Other device has disconnected. Connections remaining: \(connectionService.session.connectedPeers.count)")
+        let alert = UIAlertController(title: "Oops!", message: "Looks like your friend has disconnected. Please try connecting again.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ouch :/", style: .default, handler: { action in
+            self.goToMainScreen()
+        }))
+        self.present(alert, animated: true, completion: nil)
     }
 
 }

@@ -11,6 +11,7 @@ import UIKit
 struct ColorScheme {
     static let yellow = UIColor(rgb: 0xfff47c)
     static let red = UIColor(rgb: 0xd23d38)
+    static let green = UIColor.green
 }
 
 //MARK: Helper functions to get UIColor directly using Hex code
