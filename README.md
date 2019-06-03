@@ -8,8 +8,8 @@
 Ensures that the connection is synchronized (handles connection latencies). 
 
 #### Roles
-Master: The player who clicks play first becomes the master in the session
-Slave: The slave waits for the master to initialize the game, and then initializes the game.
+* Master: The player who clicks play first becomes the master in the session
+* Slave: The slave waits for the master to initialize the game, and then initializes the game.
 
 #### Message Protocol
 * "slave" : The master sends this message to the slave device once it initializes the game as a master. 
