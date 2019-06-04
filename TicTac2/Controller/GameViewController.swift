@@ -90,7 +90,8 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
     func goToConnectionScreen() {
         let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         let connectionVC = storyBoard.instantiateViewController(withIdentifier: "ConnectionView") as! ConnectionViewController
-        self.present(connectionVC, animated: true, completion: nil)
+        self.dismiss(animated: true, completion: nil)
+        //self.present(connectionVC, animated: true, completion: nil)
     }
     
     //MARK: Collection View Functions
