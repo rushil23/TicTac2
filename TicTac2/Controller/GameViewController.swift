@@ -230,6 +230,7 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
     }
     
     func randomErrorOccured() {
+        connectionService.send(data: "failure")
         goToConnectionScreen()
         NotificationCenter.default.post(name: .randomErrorOccured, object: nil)
     }
@@ -240,8 +241,12 @@ extension GameViewController : GamePlayDelegate {
     func gamePlayReceived(manager: ConnectionService, message: String) {
         print("Game Play Received = \(message)")
         
+        
+        if (message == "failure") {
+            randomErrorOccured()
+        }
         // The "master" message is a sign that the slave has finished loading
-        if (message == "master") { //Initialize game and set the image
+        else if (message == "master") { //Initialize game and set the image
             guard checkMasterSlaveSetup(isMaster: true) else { return }
             game.initializeGame()
             DispatchQueue.main.async {
