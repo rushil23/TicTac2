@@ -10,8 +10,8 @@ import UIKit
 
 enum gridStatus{
     case notSelected
-    case playerX
-    case playerO
+    case gridX
+    case gridO
 }
 
 class Grid: NSObject {

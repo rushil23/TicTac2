@@ -38,7 +38,7 @@ class ConnectionService: NSObject {
     
     lazy var session : MCSession = { //Initialize connection session
         let session = MCSession(peer: myPeerId, securityIdentity: nil, encryptionPreference: .none)
-        session.delegate = self as MCSessionDelegate
+        session.delegate = self
         return session
     }()
     
@@ -52,10 +52,10 @@ class ConnectionService: NSObject {
     }
     
     public func goLive() { //Start advertising and browing for peers
-        self.serviceAdvertiser.delegate = self as MCNearbyServiceAdvertiserDelegate
+        self.serviceAdvertiser.delegate = self
         self.serviceAdvertiser.startAdvertisingPeer()
         
-        self.serviceBrowser.delegate = self as MCNearbyServiceBrowserDelegate
+        self.serviceBrowser.delegate = self
         self.serviceBrowser.startBrowsingForPeers()
     }
     

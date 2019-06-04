@@ -33,9 +33,9 @@ class GameManager {
     func initializeGame() {
         print("GAME INTITIALIZED!")
         initializeGrid()
-        
+        guard let master = master else { return }
         //Master decides who becomes X and who becomes O
-        if (master ?? false) { // Initialize game parameters
+        if (master) { // Initialize game parameters
             print("You are the master.")
             playerX = Bool.random()
             yourTurn = playerX
@@ -64,7 +64,7 @@ class GameManager {
     
     //MARK: Win Condition Check
     func checkWinStatus(_ status: gridStatus) -> winStatus {
-        let hasXWon: Bool = (status == .playerX)
+        let hasXWon: Bool = (status == .gridX)
         return (hasXWon == playerX) ? .won : .lost
     }
 

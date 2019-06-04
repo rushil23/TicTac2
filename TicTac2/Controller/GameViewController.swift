@@ -126,13 +126,13 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
             case .notSelected: //Hide image view initially
                 grid.image.isHidden = true
                 break
-            case .playerX:
+            case .gridX:
                 grid.image.isHidden = false //Show X
-                grid.image.image = UIImage(named: "crossred.png")
+                grid.image.image = X
                 break
-            case .playerO:
+            case .gridO:
                 grid.image.isHidden = false //Show O
-                grid.image.image = UIImage(named: "redcircle.png")
+                grid.image.image = O
                 break
         }
         
@@ -162,7 +162,7 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
         connectionService.send(data: "\(index)")
         
         let isX = game.playerX
-        game.updateStatusAtIndex(status: (isX ? .playerX : .playerO), index: index)
+        game.updateStatusAtIndex(status: (isX ? .gridX : .gridO), index: index)
     
         UIView.animate(withDuration: animationDuration, animations: {
             self.gridView.reloadItems(at: [IndexPath(item: index, section: 0)])
@@ -174,7 +174,7 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
     func theySelectedAt(_ index: Int) {
         game.selectedCount += 1
         let isX = game.playerX
-        game.updateStatusAtIndex(status: isX ? .playerO : .playerX, index: index)
+        game.updateStatusAtIndex(status: isX ? .gridO : .gridX, index: index)
         UIView.animate(withDuration: animationDuration, animations: {
             self.gridView.reloadItems(at: [IndexPath(item: index, section: 0)])
         })
