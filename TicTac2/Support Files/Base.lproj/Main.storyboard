@@ -32,13 +32,6 @@
                                 <color key="textColor" red="0.81884258985519409" green="0.24058058857917786" blue="0.21955826878547668" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Wye-ec-Nog" userLabel="deviceName">
-                                <rect key="frame" x="20" y="184" width="374" height="130"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" red="0.81884258985519409" green="0.24058058857917786" blue="0.21955826878547668" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Pp5-Cj-tBz" userLabel="playButton">
                                 <rect key="frame" x="117" y="358" width="180" height="180"/>
                                 <constraints>
@@ -66,7 +59,6 @@
                     <connections>
                         <outlet property="connectionSwitch" destination="lcq-Vt-hjY" id="Bbk-JI-g1h"/>
                         <outlet property="connectionsLabel" destination="tWL-fp-sFC" id="xms-MK-uLF"/>
-                        <outlet property="deviceName" destination="Wye-ec-Nog" id="pxB-xc-10h"/>
                         <outlet property="playButton" destination="Pp5-Cj-tBz" id="4qC-2w-ClH"/>
                     </connections>
                 </viewController>
@@ -133,7 +125,7 @@
                                     <color key="titleColor" red="0.81884258990000003" green="0.24058058860000001" blue="0.21955826880000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 </state>
                                 <connections>
-                                    <segue destination="BYZ-38-t0r" kind="presentation" modalTransitionStyle="crossDissolve" id="7ut-qO-KFu"/>
+                                    <action selector="goBackButtonPressed:" destination="YjT-6k-feD" eventType="touchUpInside" id="jy0-2h-1EP"/>
                                 </connections>
                             </button>
                             <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" alignment="center" spacing="25" translatesAutoresizingMaskIntoConstraints="NO" id="atE-6I-Aek">

@@ -86,12 +86,14 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
         
     }
     
+    
+    @IBAction func goBackButtonPressed(_ sender: Any) {
+        goToConnectionScreen()
+    }
+    
     //Segue to connection screen
     func goToConnectionScreen() {
-        let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-        let connectionVC = storyBoard.instantiateViewController(withIdentifier: "ConnectionView") as! ConnectionViewController
         self.dismiss(animated: true, completion: nil)
-        //self.present(connectionVC, animated: true, completion: nil)
     }
     
     //MARK: Collection View Functions
@@ -213,7 +215,24 @@ class GameViewController: UIViewController, UICollectionViewDataSource, UICollec
         initialize()
     }
     
+    //Check if game.master and the message we receive agree with each other
+    //This is to handle the edge case that a master receives a "slave" message
+    func checkMasterSlaveSetup(isMaster: Bool) -> Bool{
+        guard let master = game.master else {
+            randomErrorOccured()
+            return false
+        }
+        if (master != isMaster) { //This means that the master/slave setup failed
+            randomErrorOccured()
+            return false
+        }
+        return true
+    }
     
+    func randomErrorOccured() {
+        goToConnectionScreen()
+        NotificationCenter.default.post(name: .randomErrorOccured, object: nil)
+    }
 }
 
 // Handles communication from other phone
@@ -223,7 +242,7 @@ extension GameViewController : GamePlayDelegate {
         
         // The "master" message is a sign that the slave has finished loading
         if (message == "master") { //Initialize game and set the image
-            game.master = true
+            guard checkMasterSlaveSetup(isMaster: true) else { return }
             game.initializeGame()
             DispatchQueue.main.async {
                 self.yourTurn = self.game.yourTurn
@@ -232,6 +251,7 @@ extension GameViewController : GamePlayDelegate {
         // Handles game initialization and sets parameters
         // This is a message sent by the master to the slave
         } else if (message == "X" || message == "O") {
+            guard checkMasterSlaveSetup(isMaster: false) else { return }
             game.playerX = (message == "X")
             game.yourTurn = game.playerX
             DispatchQueue.main.async {
@@ -252,11 +272,8 @@ extension GameViewController : GamePlayDelegate {
     //Disconnect occurs when the connection loses a peer
     func disconnectReceived(manager: ConnectionService) {
         print("Other device has disconnected. Connections remaining: \(connectionService.session.connectedPeers.count)")
-        let alert = UIAlertController(title: "Oops!", message: "Looks like your friend has disconnected. Please try connecting again.", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Ouch :/", style: .default, handler: { action in
-            self.goToConnectionScreen()
-        }))
-        self.present(alert, animated: true, completion: nil)
+        goToConnectionScreen()
+        NotificationCenter.default.post(name: .disconnectErrorOccured, object: nil)
     }
 
 }

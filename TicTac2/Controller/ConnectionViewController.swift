@@ -19,7 +19,6 @@ class ConnectionViewController: UIViewController {
     // UI Outlets
     @IBOutlet weak var connectionSwitch: UISwitch!
     @IBOutlet weak var connectionsLabel: UILabel!
-    @IBOutlet weak var deviceName: UILabel!
     @IBOutlet weak var playButton: UIButton!
     
     //Go Live switch toggle
@@ -67,23 +66,46 @@ class ConnectionViewController: UIViewController {
         
         connectionService.connectionDelegate = self
         
-        //Initially disable connections and play button
-        connectionSwitch.isOn = false
-        playButton.isEnabled = false
-        connectionService.goOffline()
-        
         //Setup Colors
         self.view.backgroundColor = ColorScheme.yellow
         self.connectionsLabel.textColor = ColorScheme.red
         
-        //Hide connected device list : Remove this for testing purposes
-        deviceName.isHidden = true
+        //Setup Error Notifications
+        NotificationCenter.default.addObserver(self, selector: #selector(connectionErrorOccured), name: .randomErrorOccured, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(disconnectErrorOccured), name: .disconnectErrorOccured, object: nil)
+        
     }
     
-    // Function to update connections
-    func refreshData(_ connectedDevices: [String]) {
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
+        
+        //Initially disable connections and play button
+        connectionSwitch.setOn(false, animated: true)
+        playButton.isEnabled = false
+        connectionService.goOffline()
+        
+        //Reset Game Parameters - Necessary to set master to Nil once we are back to connection screen.
+        game.resetGameParameters()
+        
+    }
+    
+    @objc func connectionErrorOccured() {
+        let alert = UIAlertController(title: "Oops!", message: "Something went wrong with the connection. Please try again!", preferredStyle: .alert)
+        //Ideally the handler here will send a READY message
+        alert.addAction(UIAlertAction(title: "Okay :/", style: .default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    @objc func disconnectErrorOccured() {
+        let alert = UIAlertController(title: "Oops!", message: "Looks like your friend has disconnected. Please try connecting again.", preferredStyle: .alert)
+        //Ideally the handler here will send a READY message
+        alert.addAction(UIAlertAction(title: "Ouch :/", style: .default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    // Function to update connections count
+    func refreshData() {
         DispatchQueue.main.async {
-            self.deviceName.text = "\(connectedDevices)"
             let numConnections = self.connectionService.session.connectedPeers.count
             self.connectionsLabel.textColor = (numConnections == 1) ? ColorScheme.green : ColorScheme.red
             self.connectionsLabel.text = "Connection(s): \(numConnections)"
@@ -102,7 +124,12 @@ extension ConnectionViewController : ConnectionServiceDelegate {
     }
     
     func connectedDevicesChanged(manager: ConnectionService, connectedDevices: [String]) {
-        refreshData(connectedDevices) //Update connections UI
+        refreshData() //Update connections UI
     }
     
+}
+
+extension Notification.Name {
+    static let randomErrorOccured = Notification.Name("randomErrorOccured")
+    static let disconnectErrorOccured = Notification.Name("disconnectErrorOccured")
 }

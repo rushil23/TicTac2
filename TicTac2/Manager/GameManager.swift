@@ -46,6 +46,12 @@ class GameManager {
         }
     }
     
+    //Necessary to reset the master property to Nil once connection is interrupted
+    func resetGameParameters() {
+        master = nil
+        selectedCount = 0
+    }
+    
     func initializeGrid() {
         selectedCount = 0
         grid = Array(repeating: Array(repeating: Grid(), count: size), count: size)
